@@ -1,0 +1,97 @@
+#This file is part of plot-speed.
+#
+#Foobar is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, version 2 of the License.
+#
+#Foobar is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with Foobar.  If not, see <http://www.gnu.org/licenses/>
+
+cat << EOF > /tmp/gnuplot.media.base
+set term png size 1300,600
+set xdata time
+#set timefmt "%m/%d/%y %H:%M:%S"
+set format x "%m/%y"
+set ylabel 'Mbit/s'
+set xlabel 'Data'
+#set xrange ["2017-05":"2018-05"]
+set key outside below
+set style fill pattern
+set grid back
+set grid nopolar
+set palette defined (-1 'red', 1 'green')
+set cbrange [-1:1]
+unset colorbox
+set style fill solid noborder
+set border linewidth 1.5
+set boxwidth 600000 absolute
+set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 7 ps 1.5 # --- blue
+set style line 2 lc rgb '#dd181f' lt 1 lw 2 pt 5 ps 1.5 # --- red
+set style line 3 lc rgb '#000000' lt 1 lw 2 pt 5 ps 5 # --- black
+set style line 4 lc rgb '#808080' lt 1 lw 2 pt 5 ps 5 # --- gray
+#set logscale y 10
+#set ytics  norangelimit logscale autofreq
+# Date,Open,High,Low,Close
+#plot "$ARQ" u 1:2 title 'Download' with linespoints ls 1,\
+#     "$ARQ" u 1:3 title 'Upload' with linespoints ls 2, \
+#     "$ARQ" u 1:4 w points ls 1 title 'Max DOWN',\
+#     "$ARQ" u 1:5 w points ls 1 title 'Min DOWN',\
+#     "$ARQ" u 1:6 w points ls 2 title 'Max UP',\
+#     "$ARQ" u 1:7 w points ls 2 title 'Min UP'
+EOF
+
+(
+cat /tmp/gnuplot.media.base
+cat << EOF
+set timefmt "%Y-%m-%d"
+set output "downloads-MD.png"
+set title "DOWNLOADS - DIARIO"
+plot 'Maravilha-MD.data' u 1:2 title 'Maravilha' with lines ,\
+     'COPEL-MD.data' u 1:2 title 'Copel' with lines ,\
+     'RNP-SC-MD.data' u 1:2 title 'RNP-SC' with lines,\
+     'RNP-ES-MD.data' u 1:2 title 'RNP-ES' with lines,\
+     'Miami-COMCAST-MD.data' u 1:2 title 'Miami-Comcast' with lines,\
+     'Speedtest-SP-MD.data' u 1:2 title 'Speedtest-SP' with lines,\
+     'Speedtest-NY-MD.data' u 1:2 title 'Speedtest-NY' with lines,\
+     'Speedtest-LA-MD.data' u 1:2 title 'Speedtest-LA' with lines,\
+     'BR-MD.data' u 1:2 title 'Media DIARIA BRASIL' with lines ls 3,\
+     'GR-MD.data' u 1:2 title 'Media DIARIA ESTRANGEIRO' with lines ls 4
+
+set output "uploads-MD.png"
+set title "UPLOADS - DIARIO"
+
+plot 'Maravilha-MD.data' u 1:3 title 'Maravilha' with lines ,\
+     'COPEL-MD.data' u 1:3 title 'Copel' with lines ,\
+     'RNP-SC-MD.data' u 1:3 title 'RNP-SC' with lines,\
+     'RNP-ES-MD.data' u 1:3 title 'RNP-ES' with lines,\
+     'Miami-COMCAST-MD.data' u 1:3 title 'Miami-Comcast' with lines,\
+     'Speedtest-SP-MD.data' u 1:3 title 'Speedtest-SP' with lines,\
+     'Speedtest-NY-MD.data' u 1:3 title 'Speedtest-NY' with lines,\
+     'Speedtest-LA-MD.data' u 1:3 title 'Speedtest-LA' with lines,\
+     'BR-MD.data' u 1:3 title 'Media DIARIA BRASIL' with lines ls 3,\
+     'GR-MD.data' u 1:3 title 'Media DIARIA ESTRANGEIRO' with lines ls 4
+EOF
+     ) | gnuplot
+for ARQ in *-MD.data; do
+  if [[ ! -e "$ARQ" ]]; then continue; fi
+  (
+    cat /tmp/gnuplot.media.base
+    cat << EOF
+      set timefmt "%Y-%m-%d"
+      set output "$(basename $ARQ -MD.data)-download-MD.png"
+      set title "$(basename $ARQ -MD.data) - DIARIO"
+#      plot "$ARQ" using 1:2:4:5 notitle with yerrorbars
+       plot "$ARQ" using 1:2 title "Download" with lines ls 1,\
+            "$ARQ" using 1:3 title "Upload" with lines ls 2
+#            'BR-MD.data' u 1:2 title 'Media DIARIA BRASIL' with lines,\
+#            'GR-MD.data' u 1:2 title 'Media DIARIA ESTRANGEIRO' with lines
+EOF
+  ) |gnuplot
+done
+
+exit 0

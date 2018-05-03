@@ -1,0 +1,20 @@
+# Ferramenta para converter para o formato mais novo.
+
+function converte()
+{
+  local NOME=$1
+  local AGORA=$(date +%s)
+  local MES=$(date +"%Y-%m")
+  local DIA=$(date +"%d")
+  local last=0
+  while read DDIA DDOWN DUP; do
+    Dmes=$(date --date=@$DDIA +"%Y-%m")
+    Ddia=$(date --date=@$DDIA +"%d")
+    mkdir -p results/$NOME/$Dmes
+    echo "$DDIA $DDOWN $DUP" >> results/$NOME/$Dmes/$Ddia.data
+  done <<< "$(grep ".*\..*\." $NOME.data)"
+}
+
+for i in Maravilha COPEL RNP-SC RNP-ES Miami-COMCAST Speedtest-SP; do
+  converte $i
+done

@@ -1,0 +1,48 @@
+#!/bin/bash
+#This file is part of plot-speed.
+#
+#Foobar is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, version 2 of the License.
+#
+#Foobar is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with Foobar.  If not, see <http://www.gnu.org/licenses/>
+
+function gera-media()
+{
+  local file=$1
+  local NEWFILE="$(dirname $file)/$(basename $file .data).mdata"
+  local XCOL=$2
+  if test $NEWFILE -nt $file; then
+    return
+  fi
+  (printf "$XCOL "
+  awk 'BEGIN { menorDOWN=1000;menorUP=1000; maiorDOWN=0; maiorUP=0 }
+  { if ($2 < menorDOWN) menorDOWN=$2;
+    if ($2 > maiorDOWN) maiorDOWN=$2
+    if ($3 < menorUP) menorUP=$3;
+    if ($3 > maiorUP) maiorUP=$3;
+    down+=$2; up+=$3; count++;
+  }
+  END { printf down/count" "up/count" "
+    printf maiorDOWN" "menorDOWN" "maiorUP" "menorUP"\n" }' $file
+  ) > $NEWFILE
+
+}
+while read FILE; do
+  gera-media $FILE $(printf "$(basename $(dirname $FILE))-$(basename $FILE .data)")
+done <<< "$(find . -type f -name '*.data')"
+
+
+# So lazy to avoid rework 8^)
+ls -d */* |
+while read dir; do
+  if [[ ! -d $dir ]]; then continue; fi
+  cat $dir/*.data > ${dir}.data
+  gera-media ${dir}.data $(basename $dir)
+done
