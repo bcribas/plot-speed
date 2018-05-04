@@ -77,11 +77,9 @@ if (( $(date +%k) == 0 )); then
   cd ../..
   cd pagina/MM && bash ../../plot-MM
   cd ../..
+  cd pagina
+  rsync -aHx --delete-during ./ trinium.naquadah.com.br:/home/html/ribas/plot/
+  cd ..
 fi
-
-
-cd pagina
-rsync -aHx --delete-during ./ trinium.naquadah.com.br:/home/html/ribas/plot/
-cd ..
 
 rm -f $TEMP
