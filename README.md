@@ -11,6 +11,7 @@ distribuído como está e sem garantias.
 
 - speedtest-cli
 - gnuplot
+- rsync
 - bash
 - awk
 

@@ -15,7 +15,7 @@
 
 exec > /dev/null
 
-for dep in speedtest-cli gnuplot awk bash; do
+for dep in speedtest-cli gnuplot rsync awk bash; do
   if ! which $dep &>/dev/null; then
     echo "Faltando: '$dep'" >&2
     exit 1
